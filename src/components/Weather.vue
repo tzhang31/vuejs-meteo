@@ -26,7 +26,30 @@ defineProps({
         @keyup.enter="getWeather()"
         >
       </v-text-field>
+      <v-btn
+        block
+        rounded
+        color="success"
+        :disabled="disabledSearchButton"
+        @click="getWeather()"
+      >Search</v-btn>
+      <v-snackbar
+        v-model="showAlert"
+        timeout="2000"
+      >
+        Please try another city.
+      <template v-slot:actions>
+          <v-btn
+            color="blue"
+            variant="text"
+            @click="alart = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
       <WeatherInfo
+        v-if="!showAlert && weatherDetails"
         :weatherDetails="weatherDetails"
       />
     </div>
@@ -47,20 +70,24 @@ export default defineComponent({
   components: [WeatherInfo],
   data() {
     return {
-      cityName: 'Toulouse',
-      weatherDetails: {},
+      cityName: 'Paris',
+      weatherDetails: null,
+      showAlert: false,
     }
   },
   created() {
     this.getWeather();
   },
+  computed: {
+    disabledSearchButton() {
+      return !this.cityName || this.cityName.length < 2;
+    },
+  },
   methods: {
     async getWeather() {
+      this.showAlert = false;
       const data = await axios.get(`${OPENWEATHERMAP_API}weather?q=${this.cityName}&units=metric&APPID=${OPENWEATHERMAP_APPID}`)
-        .then((response) => {
-          console.log(response.data);
-          return response.data;
-        })
+        .then((response) => response.data)
         .then((res) => this.setWeatherDetails(res))
         .catch((e) => this.displayError(e));
       return data;
@@ -74,10 +101,11 @@ export default defineComponent({
         icon: `${OPENWEATHERMAP_URL}img/w/${iconCode}.png`,
         wind: details.wind.speed,
       };
+      this.cityName = null;
     },
-    displayError(e) {
-      console.log('displayError----', e);
-      // set cityName
+    displayError() {
+      this.showAlert = true;
+      // reset cityName
       this.cityName = null;
       // reset weatherDetails
       this.weatherDetails = null;
