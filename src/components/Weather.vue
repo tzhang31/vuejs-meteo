@@ -26,6 +26,9 @@ defineProps({
         @keyup.enter="getWeather()"
         >
       </v-text-field>
+      <WeatherInfo
+        :weatherDetails="weatherDetails"
+      />
     </div>
   </div>
 </template>
@@ -37,18 +40,19 @@ const OPENWEATHERMAP_URL = import.meta.env.VITE_OPENWEATHERMAP_URL;
 const OPENWEATHERMAP_API = import.meta.env.VITE_OPENWEATHERMAP_API;
 const OPENWEATHERMAP_APPID = import.meta.env.VITE_OPENWEATHERMAP_APPID;
 
+import WeatherInfo from './WeatherInfo.vue'
+
 export default defineComponent({
   name: 'Weather',
+  components: [WeatherInfo],
   data() {
     return {
       cityName: 'Toulouse',
+      weatherDetails: {},
     }
   },
   created() {
     this.getWeather();
-    this.getWeatherIcon();
-  },
-  computed: {
   },
   methods: {
     async getWeather() {
@@ -57,13 +61,26 @@ export default defineComponent({
           console.log(response.data);
           return response.data;
         })
-        .catch(() => {});
+        .then((res) => this.setWeatherDetails(res))
+        .catch((e) => this.displayError(e));
       return data;
     },
-    getWeatherIcon(iconCode = '10d') {
-      return axios.get(`${OPENWEATHERMAP_URL}img/w/${iconCode}.png`)
-        .then((response) => response.data)
-        .catch(() => {});
+    setWeatherDetails(details) {
+      const iconCode = details.weather && details.weather.length > 0 ? details.weather[0].icon : '01d';
+      this.weatherDetails = {
+        title: details.name,
+        temp: details.main.temp.toFixed(1),
+        humidity: details.main.humidity,
+        icon: `${OPENWEATHERMAP_URL}img/w/${iconCode}.png`,
+        wind: details.wind.speed,
+      };
+    },
+    displayError(e) {
+      console.log('displayError----', e);
+      // set cityName
+      this.cityName = null;
+      // reset weatherDetails
+      this.weatherDetails = null;
     },
   },
 });

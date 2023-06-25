@@ -10,4 +10,5 @@
 
 - Vue 3
 - Vite
-
+- axios
+- Vuetify
