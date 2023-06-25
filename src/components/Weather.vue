@@ -1,13 +1,7 @@
 <script setup>
-import { ref } from 'vue'
-
 defineProps({
   msg: String,
-})
-
-// const OPENWEATHERMAP_URL = ref(import.meta.env.VITE_OPENWEATHERMAP_URL);
-// const OPENWEATHERMAP_API = ref(import.meta.env.VITE_OPENWEATHERMAP_API);
-// const OPENWEATHERMAP_APPID = ref(import.meta.env.VITE_OPENWEATHERMAP_APPID);
+});
 </script>
 
 <template>
@@ -38,7 +32,7 @@ defineProps({
         timeout="2000"
       >
         Please try another city.
-      <template v-slot:actions>
+        <template v-slot:actions>
           <v-btn
             color="blue"
             variant="text"
@@ -84,13 +78,12 @@ export default defineComponent({
     },
   },
   methods: {
-    async getWeather() {
+    getWeather() {
       this.showAlert = false;
-      const data = await axios.get(`${OPENWEATHERMAP_API}weather?q=${this.cityName}&units=metric&APPID=${OPENWEATHERMAP_APPID}`)
+      return axios.get(`${OPENWEATHERMAP_API}weather?q=${this.cityName}&units=metric&APPID=${OPENWEATHERMAP_APPID}`)
         .then((response) => response.data)
         .then((res) => this.setWeatherDetails(res))
         .catch((e) => this.displayError(e));
-      return data;
     },
     setWeatherDetails(details) {
       const iconCode = details.weather && details.weather.length > 0 ? details.weather[0].icon : '01d';
@@ -114,8 +107,3 @@ export default defineComponent({
 });
 
 </script>
-<style scoped>
-.read-the-docs {
-  color: #888;
-}
-</style>
