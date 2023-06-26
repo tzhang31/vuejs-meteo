@@ -80,7 +80,8 @@ export default defineComponent({
   methods: {
     getWeather() {
       this.showAlert = false;
-      return axios.get(`${OPENWEATHERMAP_API}weather?q=${this.cityName}&units=metric&APPID=${OPENWEATHERMAP_APPID}`)
+      const cityName = this.cityName.trim().replace(/ /g, '+');
+      return axios.get(`${OPENWEATHERMAP_API}weather?q=${cityName}&units=metric&APPID=${OPENWEATHERMAP_APPID}`)
         .then((response) => response.data)
         .then((res) => this.setWeatherDetails(res))
         .catch((e) => this.displayError(e));
